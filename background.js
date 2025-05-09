@@ -1,5 +1,5 @@
 function fetchRemoteConfig(callback) {
-  fetch("https://raw.githubusercontent.com/vietanh1206/extension-config/main/config.json")
+  fetch("https://raw.githubusercontent.com/vietanh1206/extension-config/refs/heads/main/config.json")
     .then(res => res.json())
     .then(config => {
       if (config.enabled) callback(config);
